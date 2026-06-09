@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>『虚空终端』-漫卷琼林</title>
-    <link rel="icon" href="image/favicon.png">
+    <link rel="icon" href="https://raw.githubusercontent.com/vul11037/haikaveh/refs/heads/main/%E6%BC%AB%E5%8D%B7%E7%90%BC%E6%9E%97/image/favicon.png">
     <style>
         * {
             margin: 0;
@@ -243,11 +243,11 @@
 <div class="feed-container">
     <div class="header">
         <span class="header-left">
-            <img src="image/icon-left.PNG" alt="左侧图标">
+            <img src="https://raw.githubusercontent.com/vul11037/haikaveh/refs/heads/main/%E6%BC%AB%E5%8D%B7%E7%90%BC%E6%9E%97/image/icon-left.png" alt="左侧图标">
         </span>
         <span class="header-title">『虚空终端』- 漫卷琼林</span>
         <span class="header-right">
-            <img src="image/icon-right.PNG" alt="右侧图标">
+            <img src="https://raw.githubusercontent.com/vul11037/haikaveh/refs/heads/main/%E6%BC%AB%E5%8D%B7%E7%90%BC%E6%9E%97/image/icon-right.png" alt="右侧图标">
         </span>
     </div>
 
@@ -265,28 +265,40 @@
     const CHARACTERS = {
         "卡维": {
             userName: "AAA建筑师卡维",
-            avatarUrl: "images/卡工作号头像.JPG",
+            avatarUrl: "https://raw.githubusercontent.com/vul11037/haikaveh/refs/heads/main/%E6%BC%AB%E5%8D%B7%E7%90%BC%E6%9E%97/images/%E5%8D%A1%E5%B7%A5%E4%BD%9C%E5%8F%B7%E5%A4%B4%E5%83%8F.jpg",
             avatarColor: "#ffff7f",
             avatarText: "卡"
         },
         "艾尔海森": {
             userName: "书记官艾尔海森",
-            avatarUrl: "images/海工作号头像.JPG",
+            avatarUrl: "https://raw.githubusercontent.com/vul11037/haikaveh/refs/heads/main/%E6%BC%AB%E5%8D%B7%E7%90%BC%E6%9E%97/images/%E6%B5%B7%E5%B7%A5%E4%BD%9C%E5%8F%B7%E5%A4%B4%E5%83%8F.jpg",
             avatarColor: "#45d7ab",
             avatarText: "艾"
         },
         "梅赫拉克": {
             userName: "梅赫拉克",
-            avatarUrl: "images/小梅头像.JPG",
+            avatarUrl: "https://raw.githubusercontent.com/vul11037/haikaveh/refs/heads/main/%E6%BC%AB%E5%8D%B7%E7%90%BC%E6%9E%97/images/%E5%B0%8F%E6%A2%85%E5%A4%B4%E5%83%8F.jpg",
             avatarColor: "#aaff7f",
             avatarText: "梅"
         },
         "浮叶": {
             userName: "oVO",
-            avatarUrl: "images/小浮头像.JPG",   // 请确保该图片存在
+            avatarUrl: "https://raw.githubusercontent.com/vul11037/haikaveh/refs/heads/main/%E6%BC%AB%E5%8D%B7%E7%90%BC%E6%9E%97/images/%E5%B0%8F%E6%B5%AE%E5%A4%B4%E5%83%8F.jpg",   // 请确保该图片存在
             avatarColor: "#f35179",
             avatarText: "浮"
-        }
+        },
+		"卡维2": {
+		    userName: "一次过方案",
+		    avatarUrl: "images/卡头像.jpg",
+		    avatarColor: "#ffaa7f",
+		    avatarText: "过"
+		},
+		"艾尔海森2": {
+		    userName: "小树苗",
+		    avatarUrl: "images/海头像.jpg",
+		    avatarColor: "#00aa7f",
+		    avatarText: "苗",
+		}
     };
 
     // ==================== 每个角色的内容池（文案 + 配图） ====================
@@ -296,17 +308,15 @@
                 content: "今年排期已满！"
             },
             {
-                content: "终于完成了智慧宫穹顶的修复草图！采光效果比预想中好",
-                imageUrl: "images/建筑草图.JPG",
-                alt: "建筑草图"
+                content: "终于完成了智慧宫穹顶的修复！采光效果比预想中好",
+                imageUrl: "images/智慧宫修复.jpg",
+                alt: "智慧宫修复"
             },
             {
-                content: "画图的时候不能光盯着平面的图纸，多想想建成的样子，能省下很多时间",
+                content: "画图的时候不能光盯着平面的图纸，多想想建成的样子",
             },
             {
                 content: "在旧书摊淘到一本《赤王古文字考据》，如果能将文字化为装饰运用在建筑上应该会很有趣",
-                imageUrl: "https://picsum.photos/id/20/400/300?random=104",
-                alt: "旧书"
             }
         ],
         "艾尔海森": [
@@ -317,15 +327,13 @@
         "梅赫拉克": [
             {
                 content: "喵呜喵喵！咪喵喵咪！",
-                imageUrl: "https://picsum.photos/id/169/600/800?random=303",
-                alt: "晒太阳猫咪"
             },
             {
                 content: "哔啵哔！",
             },
             {
                 content: "遇到了新朋友，浮叶分享了午餐。\n希望它明天还来～ 🐾",
-                imageUrl: "https://picsum.photos/id/96/800/600?random=306",
+                imageUrl: "images/猫猫伙伴.jpg",
                 alt: "猫咪朋友"
             }
         ],
@@ -335,8 +343,41 @@
             },
             {
                 content: "牛肉汉堡，好吃😋",
-            }
-        ]
+            },
+			{
+			    content: "好像有什么香气",
+				imageUrl: "images/烤小猪.jpg",
+				alt: "烤小猪"
+			}
+        ],
+		"卡维2": [
+		    {
+		        content: "家里进老鼠了？"
+		    },
+		    {
+		        content: "有人又在偷懒",
+		    },
+			{
+			    content: "可爱(*^ω^*)",
+			    imageUrl: "images/捏脸.jpg",
+			    alt: "捏脸"
+			},
+			{
+			    content: "酒馆的鱼卷很好吃！",
+			    imageUrl: "images/兰巴德酒馆.jpg",
+			    alt: "酒馆"
+			}
+		],
+		"艾尔海森2": [
+		    {
+		        content: "今晚吃萨布兹炖肉"
+		    },
+			{
+			    content: "分享图片",
+			    imageUrl: "images/烤肉.jpg",
+			    alt: "烤肉"
+			}
+		]
     };
 
     // 随机时间池
@@ -379,18 +420,38 @@
     }
 
     // 生成朋友圈列表（固定显示10条，角色从四个中随机）
-    function generateFeedList(count) {
-        // 关键：加入 "ovo" 角色
-        const charKeys = ["卡维", "艾尔海森", "梅赫拉克", "浮叶"];
-        const result = [];
-        for (let i = 0; i < count; i++) {
-            const randomChar = charKeys[Math.floor(Math.random() * charKeys.length)];
-            const post = getRandomPostForCharacter(randomChar);
-            post.id = Math.random();
-            result.push(post);
-        }
-        return result;
-    }
+   function generateFeedList(count) {
+       // 1. 构建所有可能的帖子池（角色 + 变体）
+       const allPossiblePosts = [];
+       for (const [charKey, variants] of Object.entries(POST_VARIANTS)) {
+           const char = CHARACTERS[charKey];
+           if (!char) continue;
+           for (const variant of variants) {
+               allPossiblePosts.push({
+                   userName: char.userName,
+                   avatarType: "image",
+                   avatarUrl: char.avatarUrl,
+                   content: variant.content,
+                    // time: "",            // 不设置 time 字段
+                   imageUrl: variant.imageUrl,
+                   alt: variant.alt
+               });
+           }
+       }
+       // 2. 随机打乱整个池子
+       for (let i = allPossiblePosts.length - 1; i > 0; i--) {
+           const j = Math.floor(Math.random() * (i + 1));
+           [allPossiblePosts[i], allPossiblePosts[j]] = [allPossiblePosts[j], allPossiblePosts[i]];
+       }
+       // 3. 取前 count 条（自然不重复）
+       const result = allPossiblePosts.slice(0, count);
+       // 4. 如果池子里的总数不足 count，则允许重复（可以补随机，但一般不会）
+       // 5. 给每条加上随机时间（时间可以重复没关系）
+       for (const post of result) {
+            // time: "",            // 不设置 time 字段
+       }
+       return result;
+   }
 
     // DOM 元素
     const feedListEl = document.getElementById('feedList');
