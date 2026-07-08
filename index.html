@@ -4,13 +4,50 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>『虚空终端』-漫卷琼林</title>
-    <link rel="icon" href="https://raw.githubusercontent.com/vul11037/haikaveh/refs/heads/main/image/favicon.png">
+    <!-- 手写体字体 (Great Vibes) -->
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
+    <!-- 网页图标 (请自行替换路径) -->
+    <link rel="icon" href="image/favicon.png">
     <style>
+        /* 全局重置（如果有） */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
+			body {
+			    background: linear-gradient(145deg, #eef9f0 0%, #def5e5 100%);
+			    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+			    min-height: 100vh;
+			    overflow-x: hidden;
+			    -webkit-overflow-scrolling: touch;
+				.comment-emoji {
+				    width: 3em;
+				    height: 3em;
+				    vertical-align: text-bottom;
+				    display: inline-block;
+				    margin: 0 0.1em;
+				}
+			}
+        }
+        
+        /* 入场动画 */
+        @keyframes slideUpFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .feed-card {
+            opacity: 0;                         /* 初始隐藏 */
+            animation: slideUpFadeIn 0.8s ease forwards;
+            /* 不设置 animation-delay，由 JS 动态添加 */
+        }
         }
 
         body {
@@ -21,7 +58,7 @@
             -webkit-overflow-scrolling: touch;
         }
 
-        /* 顶部导航栏 — 标题严格居中 */
+        /* ===== 顶部导航栏 ===== */
         .header {
             position: sticky;
             top: 0;
@@ -35,11 +72,9 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            font-weight: 600;
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
         }
 
-        /* 左右两侧各占 1 份，保证中间标题居中 */
         .header-left {
             flex: 1;
             display: flex;
@@ -51,21 +86,20 @@
         }
 
         .header-left img {
-            width: 24px;
-            height: 24px;
+            width: 32px;
+            height: 32px;
             display: block;
         }
 
         .header-title {
             flex: 0 1 auto;
-            font-size: 20px;
-            font-weight: 620;
-            background: linear-gradient(135deg, #22643e, #3a9b6e);
-            background-clip: text;
-            -webkit-background-clip: text;
-            color: transparent;
+            font-family: 'Great Vibes', cursive;
+            font-size: 28px;
+            font-weight: 400;
+            color: #1a5a3a;
             text-align: center;
             white-space: nowrap;
+            letter-spacing: 1px;
         }
 
         .header-right {
@@ -76,11 +110,12 @@
         }
 
         .header-right img {
-            width: 24px;
-            height: 24px;
+            width: 32px;
+            height: 32px;
             display: block;
         }
 
+        /* ===== 主容器 ===== */
         .feed-container {
             max-width: 640px;
             margin: 0 auto;
@@ -88,6 +123,7 @@
             min-height: 100vh;
         }
 
+        /* ===== 下拉刷新指示器 ===== */
         .refresh-indicator {
             width: 100%;
             overflow: hidden;
@@ -116,6 +152,7 @@
             to { transform: rotate(360deg); }
         }
 
+        /* ===== 朋友圈列表 ===== */
         .feed-list {
             background-color: transparent;
             padding: 8px 0 20px 0;
@@ -134,6 +171,7 @@
             gap: 12px;
         }
 
+        /* 头像 */
         .avatar {
             flex-shrink: 0;
             width: 48px;
@@ -156,6 +194,7 @@
             object-fit: cover;
         }
 
+        /* 内容区域 */
         .feed-content {
             flex: 1;
         }
@@ -178,6 +217,7 @@
             font-size: 11px;
             color: #8e8e93;
             margin-left: 8px;
+            display: none;   /* 添加这一行 */
         }
 
         .text-content {
@@ -189,6 +229,7 @@
             white-space: pre-wrap;
         }
 
+        /* 配图区域 — 左对齐，无背景，可设置最大高度 */
         .feed-image {
             margin-top: 10px;
             padding: 0;
@@ -196,15 +237,48 @@
         }
         .feed-image img {
             max-width: 100%;
-            max-height: 300px;      /* 调大这个值 */
+            max-height: 280px;      /* 放大显示区域 */
             width: auto;
             height: auto;
             object-fit: contain;
             display: block;
             margin: 0;
             border-radius: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
         }
 
+        /* ===== 评论区样式 ===== */
+        .comments-section {
+            margin-top: 12px;
+            padding: 10px 12px;
+            background: rgba(222, 245, 229, 0.7);  /* 与背景同色系的半透明 */
+            border-radius: 16px;
+            /* 左对齐由父容器保证 */
+        }
+
+        .comment-item {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #2d4a3e;          /* 评论内容颜色（深灰绿） */
+        }
+
+        .comment-user {
+            font-weight: 600;
+            color: #1a5a3a;          /* 深绿色，区别于内容 */
+        }
+
+        .comment-reply-to {
+            font-weight: 500;
+            color: #3b7a5a;          /* 浅绿色 */
+        }
+
+        .comment-item:not(:last-child) {
+            border-bottom: 1px solid rgba(100, 130, 100, 0.15);
+            padding-bottom: 6px;
+            margin-bottom: 6px;
+        }
+
+        /* 卡片分隔线 */
         .feed-card:not(:last-child)::after {
             content: '';
             display: block;
@@ -212,6 +286,7 @@
             border-bottom: 0.5px solid rgba(100, 130, 100, 0.15);
         }
 
+        /* ===== Toast 提示 ===== */
         .toast-message {
             position: fixed;
             bottom: 30px;
@@ -240,73 +315,79 @@
 <body>
 
 <div class="feed-container">
+    <!-- 顶部栏 -->
     <div class="header">
         <span class="header-left">
-            <img src="https://raw.githubusercontent.com/vul11037/haikaveh/refs/heads/main/image/icon-left.png" alt="左侧图标">
         </span>
-        <span class="header-title">『虚空终端』- 漫卷琼林</span>
+        <span class="header-title">Sumeru</span>
         <span class="header-right">
-            <img src="https://raw.githubusercontent.com/vul11037/haikaveh/refs/heads/main/image/icon-right.png" alt="右侧图标">
         </span>
     </div>
 
+    <!-- 下拉刷新指示器 -->
     <div id="refreshIndicator" class="refresh-indicator">
         <span id="refreshText">下拉刷新</span>
     </div>
 
+    <!-- 动态列表 -->
     <div id="feedList" class="feed-list"></div>
 </div>
 
-<div id="toastMsg" class="toast-message">新的资讯已送达</div>
+<!-- Toast 提示 -->
+<div id="toastMsg" class="toast-message">已刷新</div>
 
 <script>
-    // ==================== 角色基础信息（头像、颜色等） ====================
+    // ================================================================
+    // 1. 角色基础信息（头像、颜色等）
+    // ================================================================
     const CHARACTERS = {
         "卡维": {
             userName: "AAA建筑师卡维",
-            avatarUrl: "https://raw.githubusercontent.com/vul11037/haikaveh/refs/heads/main/images/%E5%8D%A1%E5%B7%A5%E4%BD%9C%E5%8F%B7%E5%A4%B4%E5%83%8F.jpg",
+            avatarUrl: "https://raw.githubusercontent.com/HaiKaveh-99/haikaveh/refs/heads/main/images/%E5%8D%A1%E5%B7%A5%E4%BD%9C%E5%8F%B7%E5%A4%B4%E5%83%8F.jpg",
             avatarColor: "#ffff7f",
             avatarText: "卡"
         },
         "艾尔海森": {
             userName: "书记官艾尔海森",
-            avatarUrl: "https://raw.githubusercontent.com/vul11037/haikaveh/refs/heads/main/images/%E6%B5%B7%E5%B7%A5%E4%BD%9C%E5%8F%B7%E5%A4%B4%E5%83%8F.jpg",
+            avatarUrl: "https://raw.githubusercontent.com/HaiKaveh-99/haikaveh/refs/heads/main/images/%E6%B5%B7%E5%B7%A5%E4%BD%9C%E5%8F%B7%E5%A4%B4%E5%83%8F.jpg",
             avatarColor: "#45d7ab",
             avatarText: "艾"
         },
         "梅赫拉克": {
-            userName: "梅赫拉克",
-            avatarUrl: "https://raw.githubusercontent.com/vul11037/haikaveh/refs/heads/main/images/%E5%B0%8F%E6%A2%85%E5%A4%B4%E5%83%8F.jpg",
+            userName: "[ i i ]",
+            avatarUrl: "https://raw.githubusercontent.com/HaiKaveh-99/haikaveh/refs/heads/main/images/%E5%B0%8F%E6%A2%85%E5%A4%B4%E5%83%8F.jpg",
             avatarColor: "#aaff7f",
             avatarText: "梅"
         },
         "浮叶": {
-            userName: "oVO",
-            avatarUrl: "https://raw.githubusercontent.com/vul11037/haikaveh/refs/heads/main/images/%E5%B0%8F%E6%B5%AE%E5%A4%B4%E5%83%8F.jpg",   // 请确保该图片存在
+            userName: "ovO",
+            avatarUrl: "https://raw.githubusercontent.com/HaiKaveh-99/haikaveh/refs/heads/main/images/%E5%B0%8F%E6%B5%AE%E5%A4%B4%E5%83%8F.jpg",   // 请确保该图片存在
             avatarColor: "#f35179",
             avatarText: "浮"
         },
 		"卡维2": {
 		    userName: "一次过方案",
-		    avatarUrl: "https://raw.githubusercontent.com/vul11037/haikaveh/refs/heads/main/images/%E5%8D%A1%E5%A4%B4%E5%83%8F.jpg",
+		    avatarUrl: "https://raw.githubusercontent.com/HaiKaveh-99/haikaveh/refs/heads/main/images/%E5%8D%A1%E5%A4%B4%E5%83%8F.jpg",
 		    avatarColor: "#ffaa7f",
 		    avatarText: "过"
 		},
 		"艾尔海森2": {
 		    userName: "小树苗",
-		    avatarUrl: "https://raw.githubusercontent.com/vul11037/haikaveh/refs/heads/main/images/%E6%B5%B7%E5%A4%B4%E5%83%8F.jpg",
+		    avatarUrl: "https://raw.githubusercontent.com/HaiKaveh-99/haikaveh/refs/heads/main/images/%E6%B5%B7%E5%A4%B4%E5%83%8F.jpg",
 		    avatarColor: "#00aa7f",
 		    avatarText: "苗",
 		},
 		"兰巴德": {
 		    userName: "兰巴德酒馆",
-		    avatarUrl: "https://raw.githubusercontent.com/vul11037/haikaveh/refs/heads/main/images/%E5%85%B0%E5%B7%B4%E5%BE%B7%E5%A4%B4%E5%83%8F.jpg",
+		    avatarUrl: "https://raw.githubusercontent.com/HaiKaveh-99/haikaveh/refs/heads/main/images/%E5%85%B0%E5%B7%B4%E5%BE%B7%E5%A4%B4%E5%83%8F.jpg",
 		    avatarColor: "#aaaa7f",
 		    avatarText: "酒",
 		}
     };
 
-    // ==================== 每个角色的内容池（文案 + 配图） ====================
+    // ================================================================
+    // 2. 每个角色的内容池（文案 + 配图 + 评论）
+    // ================================================================
     const POST_VARIANTS = {
         "卡维": [
             {
@@ -314,117 +395,203 @@
             },
             {
                 content: "终于完成了智慧宫穹顶的修复！采光效果比预想中好",
-                imageUrl: "https://raw.githubusercontent.com/vul11037/haikaveh/refs/heads/main/images/%E6%99%BA%E6%85%A7%E5%AE%AB%E4%BF%AE%E5%A4%8D.jpg",
+                imageUrl: "https://raw.githubusercontent.com/HaiKaveh-99/haikaveh/refs/heads/main/images/%E6%99%BA%E6%85%A7%E5%AE%AB%E4%BF%AE%E5%A4%8D.jpg",
                 alt: "智慧宫修复"
             },
             {
-                content: "画图的时候不能光盯着平面的图纸，多想想建成的样子",
+                content: "画图的时候不能光盯着平面的图纸，得多想想建成后的样子",
             },
             {
                 content: "在旧书摊淘到一本《赤王古文字考据》，如果能将文字化为装饰运用在建筑上应该会很有趣",
             },
-			{
-			    content: "和艾尔海森书记官参与了KFC《夺堡奇兵》的拍摄！\n合作愉快！🤝",
-			    imageUrl: "https://raw.githubusercontent.com/vul11037/haikaveh/refs/heads/main/images/%E8%82%AF%E5%BE%B7%E5%9F%BA%E8%81%94%E5%8A%A8%E6%B5%B7%E6%8A%A5.jpg",
-			    alt: "联动"
-			}
+            {
+                content: "和艾尔海森书记官参与了KFC《夺堡奇兵》的拍摄！\n合作愉快🤝",
+                imageUrl: "https://raw.githubusercontent.com/HaiKaveh-99/haikaveh/refs/heads/main/images/%E8%82%AF%E5%BE%B7%E5%9F%BA%E8%81%94%E5%8A%A8%E6%B5%B7%E6%8A%A5.jpg",
+                alt: "联动"
+            }
         ],
         "艾尔海森": [
             {
-                content: "提交文件前请仔细核对格式",
-            },
+                    content: "提交文件前请仔细核对格式",
+                },
+            	{
+            	    content: "🎉教令院妙论派正在举办学术成果展会🎉\n✨不限学院系别参观👍\n💞对建筑学🏠和机关术⚙️感兴趣的同学们欢迎前往🦁刹诃伐罗学院305教室参观学习📚",
+            	},
+            	{
+            	    content: "欢迎捧场",
+            	    imageUrl: "https://raw.githubusercontent.com/HaiKaveh-99/haikaveh/refs/heads/main/images/%E8%82%AF%E5%BE%B7%E5%9F%BA%E8%81%94%E5%8A%A8%E6%B5%B7%E6%8A%A5.jpg",
+            	    alt: "联动"
+            	}
+            ],
+        "梅赫拉克": [
 			{
-			    content: "🎉教令院妙论派正在举办学术成果展会🎉\n✨不限学院系别参观👍\n💞对建筑学🏠和机关术⚙️感兴趣的同学们欢迎前往🦁刹诃伐罗学院305教室参观学习📚",
+			    content: "咪咪！",
 			},
 			{
-			    content: "欢迎捧场",
-			    imageUrl: "https://raw.githubusercontent.com/vul11037/haikaveh/refs/heads/main/images/%E8%82%AF%E5%BE%B7%E5%9F%BA%E8%81%94%E5%8A%A8%E6%B5%B7%E6%8A%A5.jpg",
-			    alt: "联动"
-			}
-        ],
-        "梅赫拉克": [
-            {
-                content: "咪咪！",
-            },
-            {
-                content: "哔啵哔！",
-            },
+			    content: "哔啵哔！",
+			},
             {
                 content: "遇到了新朋友，浮叶分享了午餐。\n希望它明天还来～ 🐾\n#梅赫拉克的日常",
-                imageUrl: "https://raw.githubusercontent.com/vul11037/haikaveh/refs/heads/main/images/%E7%8C%AB%E7%8C%AB%E4%BC%99%E4%BC%B4.jpg",
-                alt: "猫咪朋友"
+                imageUrl: "https://raw.githubusercontent.com/HaiKaveh-99/haikaveh/refs/heads/main/images/%E7%8C%AB%E7%8C%AB%E4%BC%99%E4%BC%B4.jpg",
+                alt: "猫咪朋友",
+                comments: [
+                    { user: "一次过方案", text: "好可爱！" },
+                    { user: "小树苗", text: "记得保持距离"}
+                ]
+            },
+            {
+                content: "记录日常^ ^\n老板是好人，买了很多好吃的！\n#梅赫拉克的日常",
+                imageUrl: "https://raw.githubusercontent.com/HaiKaveh-99/haikaveh/refs/heads/main/images/%E4%B9%B0%E5%B0%8F%E5%90%83.jpg",
+                alt: "买小吃",
+				comments: [
+				    { user: "ovO", text: "烤肉香香的" }
+				]
+            },
+            {
+                content: "每次吃完饭都有很多碗要洗，主人和室友先生会玩游戏决定谁洗碗\n安排表完全失去用处了[｡í _ ì｡]\n#梅赫拉克的日常",
+            },
+            {
+                content: "野外的大蘑菇！\n和浮叶玩得很开心^ ^\n#梅赫拉克的日常",
+                imageUrl: "https://raw.githubusercontent.com/HaiKaveh-99/haikaveh/refs/heads/main/images/%E8%B9%A6%E5%BA%8A.jpg",
+                alt: "蹦床",
+                comments: [
+                    { user: "一次过方案", text: "要注意安全哦" },
+                    { user: "[ i i ]", text: "梅赫拉克会保护主人和室友先生和浮叶的^ ^", replyTo: "一次过方案" }
+                ]
             },
 			{
-			    content: "记录日常^ ^\n老板是好人，买了很多好吃的！\n#梅赫拉克的日常",
-			    imageUrl: "https://raw.githubusercontent.com/vul11037/haikaveh/refs/heads/main/images/%E4%B9%B0%E5%B0%8F%E5%90%83.jpg",
-			    alt: "买小吃"
+			    content: "最近浮叶总是把肚子贴在主人和室友先生脸上，她说这样会让他们高兴\n梅赫拉克也要试试！",
 			},
 			{
-			    content: "每次吃完饭都有很多碗要洗，豹豹猫猫会玩游戏决定谁洗碗\n安排表完全失去用处了[｡í _ ì｡]\n#梅赫拉克的日常",
+			    content: "在枫丹玩得很开心，好多和梅赫拉克一样硬邦邦的哥哥姐姐\n在巡轨船上拍了照片，风景超棒！\n#梅赫拉克的日常",
+			    imageUrl: "https://raw.githubusercontent.com/HaiKaveh-99/haikaveh/refs/heads/main/images/%E6%9E%AB%E4%B8%B9.jpg",
+			    alt: "巡轨船",
+				comments: [
+				    { user: "小树苗", text: "小心被当成不明飞行物" },
+				    { user: "[ i i ]", text: "[ΩДΩ]", replyTo: "小树苗" },
+					{ user: "一次过方案", text: "你别吓唬它，我可是算好时间了的，不会被抓住的", replyTo: "小树苗" }
+				]
 			},
 			{
-			    content: "野外的大蘑菇！\n和浮叶玩得很开心^ ^\n#梅赫拉克的日常",
-			    imageUrl: "https://raw.githubusercontent.com/vul11037/haikaveh/refs/heads/main/images/%E8%B9%A6%E5%BA%8A.jpg",
-			    alt: "蹦床"
+			    content: "不能被发现[｡ì _ í｡]",
+				comments: [
+				    { user: "ovO", text: "ovo！" }
+				]
 			},
 			{
-			    content: "最近浮叶总是把肚子贴在豹豹猫猫脸上，她说这样会让他们高兴\n小梅也要试试！",
-			},
-			{
-			    content: "在枫丹玩得很开心，好多硬邦邦的哥哥姐姐\n在巡轨船上拍了照片，风景超棒！\n#梅赫拉克的日常",
-			    imageUrl: "https://raw.githubusercontent.com/vul11037/haikaveh/refs/heads/main/images/%E6%9E%AB%E4%B8%B9.jpg",
-			    alt: "巡轨船"
+			    content: "替主人给室友先生提交文件，路过了主人喜欢的寂静园",
+			    imageUrl: "https://raw.githubusercontent.com/HaiKaveh-99/haikaveh/refs/heads/main/images/%E5%AF%82%E9%9D%99%E5%9B%AD.jpg",
+			    alt: "寂静园",
+				comments: [
+				    { user: "一次过方案", text: "路过？那家伙跑去寂静园午休了吗？" }
+				]
 			}
         ],
         "浮叶": [
             {
-                content: "今天吃什么？\nA.汉堡\nB.塔克\nC.炸鸡\nD.蛋挞"
+                content: "今天吃什么？\nA.汉堡\nB.塔克\nC.炸鸡\nD.蛋挞",
+				comments: [
+				    { user: "一次过方案", text: "D" },
+					{ user: "小树苗", text: "c" },
+					{ user: "[ i i ]", text: "ABCD" },
+				]
             },
             {
                 content: "牛肉汉保，好吃😋",
+                comments: [
+                    { user: "小树苗", text: "堡" },
+                    { user: "ovO", text: "保土", replyTo: "小树苗" },
+                	{ user: "一次过方案", text: "手写对它来说是不是难度太大了…？", replyTo: "小树苗" }
+                ]
+            },
+            {
+                content: "好像有什么香气",
+            	imageUrl: "https://raw.githubusercontent.com/HaiKaveh-99/haikaveh/refs/heads/main/images/%E7%83%A4%E5%B0%8F%E7%8C%AA.jpg",
+            	alt: "烤小猪",
+                comments: [
+                    { user: "一次过方案", text: "快下来！！！！" }
+                ]
             },
 			{
-			    content: "好像有什么香气",
-				imageUrl: "https://raw.githubusercontent.com/vul11037/haikaveh/refs/heads/main/images/%E7%83%A4%E5%B0%8F%E7%8C%AA.jpg",
-				alt: "烤小猪"
-			},
-			{
-			    content: "拍的第一张召片\n猫猫说很有艺术细胞",
-				imageUrl: "https://raw.githubusercontent.com/vul11037/haikaveh/refs/heads/main/images/%E7%AC%AC%E4%B8%80%E5%BC%A0%E7%85%A7%E7%89%87.jpg",
-				alt: "第一张照片"
+			    content: "拍的第一张召片\n卡味说很有艺术细胞",
+				imageUrl: "https://raw.githubusercontent.com/HaiKaveh-99/haikaveh/refs/heads/main/images/%E7%AC%AC%E4%B8%80%E5%BC%A0%E7%85%A7%E7%89%87.jpg",
+				alt: "第一张照片",
+				comments: [
+				    { user: "小树苗", text: "继续保持" },
+					{ user: "一次过方案", text: "别带坏它", replyTo: "小树苗" },
+					{ user: "小树苗", text: "是你选择鼓励式教育的", replyTo: "一次过方案" },
+					{ user: "ovO", text: "ovo？"},
+					{ user: "[ i i ]", text: "梅——赫——拉——克——" }
+				]
 			},
 			{
 			    content: "章兽圆圆的，浮叶也圆圆的ovo\n浮叶=章兽",
+				comments: [
+				    { user: "一次过方案", text: "是“蕈”啦，xùn" }
+				]
 			},
 			{
-			    content: "露营！ovo\n猫猫烤的烤串很好吃",
-				imageUrl: "https://raw.githubusercontent.com/vul11037/haikaveh/refs/heads/main/images/%E9%9C%B2%E8%90%A5.jpg",
+			    content: "露营！ovo\n卡唯烤的烤串很好吃",
+				imageUrl: "https://raw.githubusercontent.com/HaiKaveh-99/haikaveh/refs/heads/main/images/%E9%9C%B2%E8%90%A5.jpg",
 				alt: "露营"
 			},
 			{
 			    content: "试试自拍ovo",
-				imageUrl: "https://raw.githubusercontent.com/vul11037/haikaveh/refs/heads/main/images/%E6%B5%AE%E8%87%AA%E6%8B%8D.jpg",
-				alt: "自拍"
+				imageUrl: "https://raw.githubusercontent.com/HaiKaveh-99/haikaveh/refs/heads/main/images/%E6%B5%AE%E8%87%AA%E6%8B%8D.jpg",
+				alt: "自拍",
+				comments: [
+				    { user: "一次过方案", text: "很可爱❤️" },
+					{ user: "小树苗", text: "该减肥了️" },
+					{ user: "一次过方案", text: "你干嘛？！", replyTo: "小树苗" }
+				]
 			},
 			{
 			    content: "风丹的甜品好好吃ovo",
+				comments: [
+				    { user: "小树苗", text: "枫" }
+				]
+			},
+			{
+			    content: "梦见浮叶飞到了月球上，有很多和浮叶一样圆圆的生物ovo\n好想去看一眼呀",
+				comments: [
+				    { user: "[ i i ]", text: "我们一起去^ ^" },
+					{ user: "一次过方案", text: "月球上会有好吃的吗？" }
+				]
+			},
+			{
+			    content: "遇到了和浮叶很像的蔬菜朋友ovo\n可是为什么拍不出来呢？",
+				imageUrl: "https://raw.githubusercontent.com/HaiKaveh-99/haikaveh/refs/heads/main/images/%E6%A1%93%E9%82%A3%E5%85%B0%E9%82%A3.jpg",
+				alt: "桓那兰那",
+				comments: [
+				    { user: "[ i i ]", text: "梅赫拉克也看见了！" },
+					{ user: "一次过方案", text: "蔬菜朋友，难道是兰那罗？" }
+				]
+			},
+			{
+			    content: "艾尔海林和卡唯在说烤什么什么派，是不是背着浮叶偷吃？！",
+				comments: [
+				    { user: "一次过方案", text: "不是啦！我们在讨论你的教令院院系" }
+				]
 			}
         ],
 		"卡维2": [
 		    {
-		        content: "家里进老鼠了？"
+		        content: "家里进老鼠了？",
+				comments: [
+				    { user: "ovO", text: "吱吱吱" }
+				]
 		    },
 		    {
 		        content: "有人又在偷懒",
 		    },
 			{
 			    content: "可爱(*^ω^*)",
-			    imageUrl: "https://raw.githubusercontent.com/vul11037/haikaveh/refs/heads/main/images/%E6%8D%8F%E8%84%B8.jpg",
+			    imageUrl: "https://raw.githubusercontent.com/HaiKaveh-99/haikaveh/refs/heads/main/images/%E6%8D%8F%E8%84%B8.jpg",
 			    alt: "捏脸"
 			},
 			{
-			    content: "酒馆的鱼卷很好吃！",
-			    imageUrl: "https://raw.githubusercontent.com/vul11037/haikaveh/refs/heads/main/images/%E5%85%B0%E5%B7%B4%E5%BE%B7%E9%85%92%E9%A6%86.jpg",
+			    content: "酒馆的鱼卷很好吃，鱼肉鲜嫩，须弥蔷薇的清香恰到好处",
+			    imageUrl: "https://raw.githubusercontent.com/HaiKaveh-99/haikaveh/refs/heads/main/images/%E5%85%B0%E5%B7%B4%E5%BE%B7%E9%85%92%E9%A6%86.jpg",
 			    alt: "酒馆"
 			},
 			{
@@ -434,20 +601,36 @@
 			    content: "改了十版结果换回了第一版……"
 			},
 			{
-			    content: "讨厌你…！"
+			    content: "讨厌你…！",
+				comments: [
+				    { user: "小树苗", text: "开门" },
+					{ user: "一次过方案", text: "不开(•́へ•́╬)", replyTo: "小树苗" }
+				]
 			},
 			{
-			    content: "浮叶是不是又胖了……？"
+			    content: "浮叶是不是又胖了……？",
+				comments: [
+				    { user: "ovO", text: "TnT？" },
+					{ user: "一次过方案", text: "不哭不哭，带你买好吃的", replyTo: "ovO" },
+					{ user: "ovO", text: "ovo💖", replyTo: "一次过方案" }
+				]
 			},
 			{
-			    content: "梅赫拉克真是聪明\n不愧是我造的！"
+			    content: "梅赫拉克真是聪明\n不愧是我造的",
+				comments: [
+				    { user: "[ i i ]", text: "哔啵哔啵[＞ ＜]" }
+				]
 			},
 			{
-			    content: "明明刚刚还在和我说话，突然就睡着了……\n不盖毯子会着凉的喔？"
+			    content: "明明刚刚还在和我说话，突然就睡着了……\n不盖毯子会着凉的喔？",
+				comments: [
+				    { user: "[ i i ]", text: "盖上了哔啵^ ^ [图片]" },
+					{ user: "一次过方案", text: "真棒！", replyTo: "[ i i ]" }
+				]
 			},
 			{
 			    content: "💓",
-			    imageUrl: "https://raw.githubusercontent.com/vul11037/haikaveh/refs/heads/main/images/%E6%B5%B7%E8%82%96%E5%83%8F.jpg",
+			    imageUrl: "https://raw.githubusercontent.com/HaiKaveh-99/haikaveh/refs/heads/main/images/%E6%B5%B7%E8%82%96%E5%83%8F.jpg",
 			    alt: "一幅画"
 			},
 			{
@@ -455,79 +638,202 @@
 			},
 			{
 			    content: "之前去稻妻旅游迷上了寿司，凭着印象复刻了出来\n艾尔海森也很喜欢，还以为他会嫌不够吃呢",
-			    imageUrl: "https://raw.githubusercontent.com/vul11037/haikaveh/refs/heads/main/images/%E5%AF%BF%E5%8F%B8.jpg",
+			    imageUrl: "https://raw.githubusercontent.com/HaiKaveh-99/haikaveh/refs/heads/main/images/%E5%AF%BF%E5%8F%B8.jpg",
 			    alt: "寿司"
 			},
 			{
-			    content: "呜呜😿"
+			    content: "呜呜😿",
+				comments: [
+				    { user: "小树苗", text: "呜呜😿" },
+					{ user: "一次过方案", text: "干嘛学我？", replyTo: "小树苗" },
+					{ user: "小树苗", text: "饿了", replyTo: "一次过方案" },
+					{ user: "一次过方案", text: "不是正在做吗？", replyTo: "小树苗" }
+				]
 			},
 			{
-			    content: "家附近的猫似乎变多了"
+			    content: "家附近的猫似乎变多了",
+				comments: [
+				    { user: "小树苗", text: "梅赫拉克和浮叶的努力成果" }
+				]
 			},
 			{
-			    content: "如果可以的话，我一定会劝教令院新生别报妙论派的"
+			    content: "如果可以的话，我一定会劝教令院新生别报妙论派的",
+				comments: [
+				    { user: "小树苗", text: "梅赫拉克呢？" },
+					{ user: "一次过方案", text: "教令院应该不收工具箱吧", replyTo: "小树苗" },
+					{ user: "小树苗", text: "没有禁止工具箱上学的规定，你可以试试", replyTo: "一次过方案" }
+				]
 			},
 			{
 			    content: "最近头发有些长了，要不要顺便换个新发型呢……？"
 			},
 			{
-			    content: "学到了一些化妆知识，明天就用某个家伙实践一下"
+			    content: "学到了一些化妆知识，明天就拿某个家伙实践一下",
+				comments: [
+				    { user: "小树苗", text: "？[图片]" },
+					{ user: "一次过方案", text: "那是浮叶画的！", replyTo: "小树苗" }
+				]
 			},
 			{
-			    content: "刚刚发现梅赫拉克把自己藏进了纸箱里，感觉就像猫咪钻纸箱一样"
+			    content: "刚刚发现梅赫拉克把自己藏进了纸箱里，看起来就像钻进纸箱的猫咪一样"
 			},
 			{
-			    content: "来枫丹啦！\n德波大饭店的手艺很好，我们都吃得很开心\n枫丹人貌似对梅赫拉克和浮叶很感兴趣，在街上很引人注目",
-			    imageUrl: "https://raw.githubusercontent.com/vul11037/haikaveh/refs/heads/main/images/%E5%BE%B7%E6%B3%A2%E5%A4%A7%E9%A5%AD%E5%BA%97.jpg",
+			    content: "来枫丹啦！\n德波大饭店的手艺很好，吃得很开心\n枫丹人貌似对梅赫拉克和浮叶很感兴趣，在街上很引人注目",
+			    imageUrl: "https://raw.githubusercontent.com/HaiKaveh-99/haikaveh/refs/heads/main/images/%E5%BE%B7%E6%B3%A2%E5%A4%A7%E9%A5%AD%E5%BA%97.jpg",
 			    alt: "枫丹"
+			},
+			{
+			    content: "最近须弥总是突然下暴雨，梅赫拉克进水的话会很麻烦，如果能给它增加收纳和开伞功能的话……",
+				imageUrl: "https://raw.githubusercontent.com/HaiKaveh-99/haikaveh/refs/heads/main/images/%E9%9B%A8%E4%BC%9E%E5%B8%BD.jpg",
+				alt: "雨伞帽",
+				comments: [
+				    { user: "小树苗", text: "所以它今天要我陪它买雨伞？" },
+					{ user: "一次过方案", text: "为什么是你？你应该没给它买奇奇怪怪的伞吧？", replyTo: "小树苗" }
+				]
+			},
+			{
+			    content: "收拾出了小时候玩的积木\n梅赫拉克和浮叶很喜欢，送给它们玩了\n有点期待它们的作品呢…",
+			    imageUrl: "https://github.com/HaiKaveh-99/haikaveh/blob/main/images/%E7%A7%AF%E6%9C%A8.png?raw=true",
+			    alt: "积木"
+			},
+			{
+			    content: "浮叶刚到家的时候对一切圆形的凹槽都很感兴趣，卡住了不少次",
+				comments: [
+				    { user: "小树苗", text: "它有所进步" },
+					{ user: "一次过方案", text: "进步很大才对吧？", replyTo: "小树苗" }
+				]
+			},
+			{
+			    content: "新买的榨汁机，感觉不错",
+			    imageUrl: "https://raw.githubusercontent.com/HaiKaveh-99/haikaveh/refs/heads/main/images/%E6%9E%9C%E6%B1%81.jpg",
+			    alt: "果汁",
+				comments: [
+				    { user: "ovO", text: "还想喝！" }
+				]
+			},
+			{
+			    content: "这几天梅赫拉克和浮叶总躲着我，虽然猜到了不过还是很感动\n感谢你们来到我的生活",
+			    imageUrl: "https://raw.githubusercontent.com/HaiKaveh-99/haikaveh/refs/heads/main/images/%E5%8D%A1%E7%94%9F%E6%97%A5.jpg",
+			    alt: "生日",
+				comments: [
+				    { user: "小树苗", text: "生日快乐，我们的大建筑师[艾尔海森](https://github.com/HaiKaveh-99/haikaveh/blob/main/images/emoji/%E8%89%BE%E5%B0%94%E6%B5%B7%E6%A3%AE-%E5%BE%88%E5%A5%BD.png?raw=true)" },
+					{ user: "ovO", text: "生日快乐卡唯！🎂"},
+					{ user: "[ i i ]", text: "主人生日快乐^ ^🎉"}
+				]
+			},
+			{
+			    content: "头好痛，手臂好酸…\n要死了……",
+				comments: [
+				    { user: "小树苗", text: "床头柜里有退烧药，热水让梅赫拉克烧了" }
+				]
+			},
+			{
+			    content: "咖喱的香气~回家的信号~~♪",
+			    imageUrl: "https://raw.githubusercontent.com/HaiKaveh-99/haikaveh/refs/heads/main/images/%E5%92%96%E5%96%B1.jpg",
+			    alt: "咖喱"
+			},
+			{
+			    content: "以前的笔记本里居然夹着学生时期的照片，还以为都不见了\n这家伙还是小时候更可爱",
+			    imageUrl: "https://raw.githubusercontent.com/HaiKaveh-99/haikaveh/refs/heads/main/images/%E6%95%99%E4%BB%A4%E9%99%A2%E7%85%A7%E7%89%87.jpg",
+			    alt: "教令院照片",
+				comments: [
+				    { user: "小树苗", text: "⌯ᗜ_W⌯ ​​​" },
+					{ user: "一次过方案", text: "现在撒娇已经晚了", replyTo: "小树苗" },
+					{ user: "一次过方案", text: "晚饭想吃什么？", replyTo: "小树苗" },
+					{ user: "小树苗", text: "秘香肉团", replyTo: "一次过方案" }
+				]
 			}
 		],
 		"艾尔海森2": [
 		    {
-		        content: "今晚吃萨布兹炖肉"
+		        content: "今晚吃萨布兹炖肉",
+				comments: [
+				    { user: "一次过方案", text: "直接和我说不就行了" }
+				]
 		    },
 			{
 			    content: "分享图片",
-			    imageUrl: "https://raw.githubusercontent.com/vul11037/haikaveh/refs/heads/main/images/%E7%83%A4%E8%82%89.jpg",
-			    alt: "烤肉"
+			    imageUrl: "https://raw.githubusercontent.com/HaiKaveh-99/haikaveh/refs/heads/main/images/%E7%83%A4%E8%82%89.jpg",
+			    alt: "烤肉",
+				comments: [
+				    { user: "ovO", text: "浮叶也想吃" }
+				]
 			},
 			{
-			    content: "看来有人出门没带钥匙"
+			    content: "看来有人出门没带钥匙",
+				comments: [
+				    { user: "一次过方案", text: "哼，我让梅赫拉克开门" },
+					{ user: "小树苗", text: "它和浮叶出去玩了", replyTo: "一次过方案" },
+					{ user: "一次过方案", text: "什么？！", replyTo: "小树苗" }
+				]
 			},
 			{
 			    content: "天气不错",
-			    imageUrl: "https://raw.githubusercontent.com/vul11037/haikaveh/refs/heads/main/images/%E6%91%B8%E5%A4%B4.jpg",
-			    alt: "摸头"
+			    imageUrl: "https://raw.githubusercontent.com/HaiKaveh-99/haikaveh/refs/heads/main/images/%E6%91%B8%E5%A4%B4.jpg",
+			    alt: "摸头",
+				comments: [
+				    { user: "一次过方案", text: "你什么时候拍的？" }
+				]
 			},
 			{
 			    content: "有人想拍",
-			    imageUrl: "https://raw.githubusercontent.com/vul11037/haikaveh/refs/heads/main/images/%E6%AF%94%E5%BF%83.jpg",
-			    alt: "比心"
-			},
-			{
-			    content: "教令院正处于期末周，该把梅赫拉克的教育提上日程了"
+			    imageUrl: "https://raw.githubusercontent.com/HaiKaveh-99/haikaveh/refs/heads/main/images/%E6%AF%94%E5%BF%83.jpg",
+			    alt: "比心",
+				comments: [
+				    { user: "ovO", text: "❤️" }
+				]
 			},
 			{
 			    content: "？",
-			    imageUrl: "https://raw.githubusercontent.com/vul11037/haikaveh/refs/heads/main/images/%E5%8D%A1%E8%82%96%E5%83%8F.jpg",
-			    alt: "画作"
+			    imageUrl: "https://raw.githubusercontent.com/HaiKaveh-99/haikaveh/refs/heads/main/images/%E5%8D%A1%E8%82%96%E5%83%8F.jpg",
+			    alt: "画作",
+				comments: [
+				    { user: "一次过方案", text: "还有很大的上升空间" }
+				]
 			},
 			{
-			    content: "名叫“海瑟姆”的猫\n哈"
+			    content: "名叫“海瑟姆”的猫\n哈",
+				comments: [
+				    { user: "一次过方案", text: "咪咪咪" }
+				]
 			},
 			{
 			    content: "嘻嘻，偷偷登一下这家伙的账号"
 			},
 			{
-			    content: "浮叶的减肥规划有必要考虑了"
+			    content: "有必要考虑一下浮叶的减肥规划了",
+				comments: [
+				    { user: "一次过方案", text: "也没有吃很多吧？" },
+					{ user: "小树苗", text: "没发现你最近抱着它的时间越来越短了吗？", replyTo: "一次过方案" },
+					{ user: "一次过方案", text: "等等，你这条应该屏蔽它了吧？", replyTo: "小树苗" },
+					{ user: "小树苗", text: "当然，不会像你一样", replyTo: "一次过方案" },
+					{ user: "一次过方案", text: "(╬•᷅д•᷄╬)", replyTo: "小树苗" }
+				]
 			},
 			{
-			    content: "最近没什么好喝的咖啡"
+			    content: "最近没什么好喝的咖啡",
+				comments: [
+				    { user: "一次过方案", text: "上次刷到在咖啡里放香辛料的做法，要不要试试？" }
+				]
 			},
 			{
-			    content: "来枫丹了\n菜有点淡",
-			    imageUrl: "https://raw.githubusercontent.com/vul11037/haikaveh/refs/heads/main/images/%E6%9E%AB%E4%B8%B9%E6%89%93%E5%8D%A1.jpg",
-			    alt: "枫丹打卡"
+			    content: "枫丹\n菜有点淡",
+			    imageUrl: "https://raw.githubusercontent.com/HaiKaveh-99/haikaveh/refs/heads/main/images/%E6%9E%AB%E4%B8%B9%E6%89%93%E5%8D%A1.jpg",
+			    alt: "枫丹打卡",
+				comments: [
+				    { user: "一次过方案", text: "真是极致的图文无关" }
+				]
+			},
+			{
+			    content: "还没想好吗？",
+			    imageUrl: "https://raw.githubusercontent.com/HaiKaveh-99/haikaveh/refs/heads/main/images/%E4%B8%83%E5%9C%A3%E5%8F%AC%E5%94%A4.jpg",
+			    alt: "七圣召唤"
+			},
+			{
+			    content: "好热",
+				comments: [
+				    { user: "一次过方案", text: "得换个空调了…" }
+				]
 			}
 		],
 		"兰巴德": [
@@ -543,7 +849,9 @@
 		]
     };
 
-    // 随机时间池
+    // ================================================================
+    // 3. 辅助工具：随机时间、生成帖子
+    // ================================================================
     const TIME_OPTIONS = [
         "刚刚", "2分钟前", "8分钟前", "15分钟前", "半小时前", "1小时前", "2小时前", "3小时前",
         "昨天 07:23", "昨天 10:15", "昨天 12:00", "昨天 14:40", "昨天 19:08",
@@ -554,10 +862,10 @@
         return TIME_OPTIONS[Math.floor(Math.random() * TIME_OPTIONS.length)];
     }
 
+    // 根据角色键名和变体生成完整帖子对象（包含评论）
     function getRandomPostForCharacter(charKey) {
         const variants = POST_VARIANTS[charKey];
         if (!variants || variants.length === 0) {
-            // 降级处理（理论上不会发生）
             return {
                 userName: CHARACTERS[charKey]?.userName || "未知",
                 avatarType: "image",
@@ -565,64 +873,101 @@
                 content: "暂无动态",
                 time: getRandomTime(),
                 imageUrl: "",
-                alt: ""
+                alt: "",
+                comments: []
             };
         }
         const randomIndex = Math.floor(Math.random() * variants.length);
         const variant = variants[randomIndex];
         const char = CHARACTERS[charKey];
-       return {
-           userName: char.userName,
-           avatarType: "image",
-           avatarUrl: char.avatarUrl,
-           content: variant.content,
-           // time: "",            // 不设置 time 字段
-           imageUrl: variant.imageUrl,
-           alt: variant.alt
-       };
+        return {
+            userName: char.userName,
+            avatarType: "image",
+            avatarUrl: char.avatarUrl,
+            content: variant.content,
+            time: getRandomTime(),
+            imageUrl: variant.imageUrl || "",
+            alt: variant.alt || "",
+            comments: variant.comments || []   // 评论数组
+        };
     }
 
-    // 生成朋友圈列表（固定显示10条，角色从四个中随机）
-   function generateFeedList(count) {
-       // 1. 构建所有可能的帖子池（角色 + 变体）
-       const allPossiblePosts = [];
-       for (const [charKey, variants] of Object.entries(POST_VARIANTS)) {
-           const char = CHARACTERS[charKey];
-           if (!char) continue;
-           for (const variant of variants) {
-               allPossiblePosts.push({
-                   userName: char.userName,
-                   avatarType: "image",
-                   avatarUrl: char.avatarUrl,
-                   content: variant.content,
-                    // time: "",            // 不设置 time 字段
-                   imageUrl: variant.imageUrl,
-                   alt: variant.alt
-               });
-           }
-       }
-       // 2. 随机打乱整个池子
-       for (let i = allPossiblePosts.length - 1; i > 0; i--) {
-           const j = Math.floor(Math.random() * (i + 1));
-           [allPossiblePosts[i], allPossiblePosts[j]] = [allPossiblePosts[j], allPossiblePosts[i]];
-       }
-       // 3. 取前 count 条（自然不重复）
-       const result = allPossiblePosts.slice(0, count);
-       // 4. 如果池子里的总数不足 count，则允许重复（可以补随机，但一般不会）
-       // 5. 给每条加上随机时间（时间可以重复没关系）
-       for (const post of result) {
-            // time: "",            // 不设置 time 字段
-       }
-       return result;
-   }
+    // 生成朋友圈列表（固定10条，角色从所有角色中随机抽取，去重保证内容不重复）
+    let lastUsedFingerprints = new Set();
+    
+    function generateFeedList(count) {
+        // 构建全量池
+        const allPosts = [];
+        for (const [charKey, variants] of Object.entries(POST_VARIANTS)) {
+            const char = CHARACTERS[charKey];
+            if (!char) continue;
+            for (const variant of variants) {
+                allPosts.push({
+                    userName: char.userName,
+                    avatarType: "image",
+                    avatarUrl: char.avatarUrl,
+                    content: variant.content || "",
+                    imageUrl: variant.imageUrl || "",
+                    alt: variant.alt || "",
+                    comments: variant.comments || []
+                });
+            }
+        }
+    
+        if (allPosts.length === 0) {
+            // 如果池子为空，返回空数组
+            return [];
+        }
+    
+        function getFingerprint(post) {
+            return (post.content || '') + '|||' + (post.imageUrl || '');
+        }
+    
+        // 过滤掉上次使用的
+        let available = allPosts;
+        if (lastUsedFingerprints.size > 0) {
+            available = allPosts.filter(post => !lastUsedFingerprints.has(getFingerprint(post)));
+        }
+    
+        // 如果过滤后不足，则全部使用
+        if (available.length < count) {
+            available = allPosts;
+        }
+    
+        // 打乱
+        for (let i = available.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [available[i], available[j]] = [available[j], available[i]];
+        }
+    
+        const selected = available.slice(0, count);
+    
+        // 更新指纹
+        const newFingerprints = new Set();
+        for (const post of selected) {
+            newFingerprints.add(getFingerprint(post));
+        }
+        lastUsedFingerprints = newFingerprints;
+    
+        // 分配时间
+        for (const post of selected) {
+            post.time = getRandomTime();
+        }
+    
+        return selected;
+    }
 
-    // DOM 元素
+    // ================================================================
+    // 4. DOM 操作与渲染
+    // ================================================================
     const feedListEl = document.getElementById('feedList');
     const refreshIndicator = document.getElementById('refreshIndicator');
     const refreshTextSpan = document.getElementById('refreshText');
     const toastMsg = document.getElementById('toastMsg');
 
     let isRefreshing = false;
+	let isLoadingMore = false;      // ← 新增
+	let refreshCooldown = false;    // ← 新增
     let refreshReady = false;
     let isPullActive = false;
     let startY = 0;
@@ -649,20 +994,57 @@
         });
     }
 
+    // 渲染朋友圈列表（包含评论区）
     function renderFeeds(feedsArray) {
         if (!feedListEl) return;
         if (!feedsArray || feedsArray.length === 0) {
-            feedListEl.innerHTML = '<div class="empty-tip"> 暂时没有资讯 </div>';
+            feedListEl.innerHTML = '<div class="empty-tip">暂时没有动态</div>';
             return;
         }
         let html = '';
         for (const feed of feedsArray) {
+            // 头像
             let avatarHtml = `<img src="${feed.avatarUrl}" alt="avatar">`;
+
+            // 配图
             const imageHtml = feed.imageUrl ? `
                 <div class="feed-image">
                     <img src="${feed.imageUrl}" alt="${escapeHtml(feed.alt)}" loading="lazy">
                 </div>
             ` : '';
+
+            // ---------- 评论区 HTML ----------
+            let commentsHtml = '';
+            if (feed.comments && feed.comments.length > 0) {
+                const commentItems = feed.comments.map(comment => {
+                    let replyPart = comment.replyTo ? ` 回复了 <span class="comment-reply-to">${escapeHtml(comment.replyTo)}</span>：` : '：';
+                    // 先转义整个文本
+                    let text = escapeHtml(comment.text);
+                    // 再替换表情标记（注意这里替换后插入的 img 标签不会被转义）
+                    text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, function(match, name, url) {
+                        // 这里的 name 和 url 已经由 escapeHtml 处理过了，但我们需要再次确保安全
+                        // 因为 name 和 url 来自原始文本，已被转义，但我们要构造 img，需要解码？实际上 escapeHtml 会将 & 转为 &amp; 等，所以最好先 unescape？
+                        // 更简单的方法：只对 URL 进行转义，name 也转义
+                        const safeName = escapeHtml(name);
+                        const safeUrl = escapeHtml(url);
+                        return `<img src="${safeUrl}" alt="${safeName}" class="comment-emoji">`;
+                    });
+                    return `
+                        <div class="comment-item">
+                            <span class="comment-user">${escapeHtml(comment.user)}</span>
+                            ${replyPart}
+                            <span class="comment-text">“${text}”</span>
+                        </div>
+                    `;
+                }).join('');
+                commentsHtml = `
+                    <div class="comments-section">
+                        ${commentItems}
+                    </div>
+                `;
+            }
+
+            // 整条卡片
             html += `
                 <div class="feed-card">
                     <div class="feed-wrapper">
@@ -674,6 +1056,7 @@
                             </div>
                             <div class="text-content">${escapeHtml(feed.content).replace(/\n/g, '<br>')}</div>
                             ${imageHtml}
+                            ${commentsHtml}
                         </div>
                     </div>
                 </div>
@@ -682,17 +1065,21 @@
         feedListEl.innerHTML = html;
     }
 
+    // 刷新内容：生成新的随机列表并渲染
     function refreshContent() {
         const newFeeds = generateFeedList(DISPLAY_COUNT);
         renderFeeds(newFeeds);
-        showToast('新的资讯已送达', 1200);
+        showToast('刷新成功', 1200);
     }
 
+    // ================================================================
+    // 5. 下拉刷新逻辑（触摸 + 鼠标）
+    // ================================================================
     function performRefresh() {
         if (isRefreshing) return Promise.resolve();
         isRefreshing = true;
         if (refreshTextSpan && refreshIndicator) {
-            refreshTextSpan.innerHTML = '<span class="refresh-spinner"></span> 获取资讯中…';
+            refreshTextSpan.innerHTML = '<span class="refresh-spinner"></span> 刷新中...';
             refreshIndicator.style.height = '44px';
         }
         return new Promise((resolve) => {
@@ -711,7 +1098,7 @@
 
     function resetRefreshIndicator() {
         if (refreshIndicator) refreshIndicator.style.height = '0px';
-        if (refreshTextSpan) refreshTextSpan.innerHTML = '下拉获取资讯';
+        if (refreshTextSpan) refreshTextSpan.innerHTML = '下拉刷新';
         refreshReady = false;
         isPullActive = false;
     }
@@ -727,15 +1114,15 @@
         if (pullDist >= PULL_THRESHOLD) {
             if (!refreshReady) {
                 refreshReady = true;
-                refreshTextSpan.innerHTML = '⬇️ 释放获取资讯';
+                refreshTextSpan.innerHTML = '⬇️ 释放刷新';
             }
         } else {
             if (refreshReady) refreshReady = false;
-            refreshTextSpan.innerHTML = '⬇️ 下拉获取资讯';
+            refreshTextSpan.innerHTML = '⬇️ 下拉刷新';
         }
     }
 
-    // 触摸事件
+    // ----- 触摸事件 -----
     function onTouchStart(e) {
         if (isRefreshing) return;
         const touch = e.touches[0];
@@ -787,7 +1174,7 @@
         isTouchMoving = false;
     }
 
-    // 鼠标支持（PC）
+    // ----- 鼠标事件（PC 支持） -----
     let mouseStartY = 0;
     let mouseDragging = false;
     function onMouseDown(e) {
@@ -804,10 +1191,10 @@
             updatePullProgress(pullDist);
             if (pullDist >= PULL_THRESHOLD && !refreshReady) {
                 refreshReady = true;
-                refreshTextSpan.innerHTML = '⬇️ 释放获取资讯';
+                refreshTextSpan.innerHTML = '⬇️ 释放刷新';
             } else if (pullDist < PULL_THRESHOLD && refreshReady) {
                 refreshReady = false;
-                refreshTextSpan.innerHTML = '⬇️ 下拉获取资讯';
+                refreshTextSpan.innerHTML = '⬇️ 下拉刷新';
             }
             isPullActive = true;
         } else {
@@ -851,7 +1238,9 @@
         });
     }
 
-    // 初始化
+    // ================================================================
+    // 6. 初始化
+    // ================================================================
     function init() {
         const initialFeeds = generateFeedList(DISPLAY_COUNT);
         renderFeeds(initialFeeds);
